@@ -21,10 +21,13 @@ def load_data(*data_file):
     data_file is a tuple with 1 or 2 elements;
     first is vibration matrix,
     second can be rotating speed matrix.
+
     input two files only for rsn,
     load_data twice if you have two vibration signal files.
+
     rsn is a preprocessing for signal, 
     it requires rotating speed matrix.
+
     see paper "Convolutional Neural Networks for Fault Diagnosis
     Using Rotating Speed Normalized Vibration".
     '''
@@ -109,3 +112,4 @@ arr = np.random.rand(10, 1, 2048)
 arr = resample_arr(arr, 240, method='Poly')
 print(arr.shape)
 '''
+
