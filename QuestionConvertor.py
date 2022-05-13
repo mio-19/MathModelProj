@@ -30,25 +30,25 @@ def read_gearbox(file, name):
 
 
 
-def tag_output(input, tag):
-    return np.full(input.shape[0], tag)
+
+def chunk1000to512(seq):
+    return (seq[0:511],seq[488:999])
+def sensor2groups1000_512(input):
+    return np.stack(c.to_numpy().flatten() for c in chunk1000to512(input))
+def read_gearbox1000_512(file, name):
+    return sensor2groups1000_512(read_gearbox_sensor(file, name))
 
 # Loading the Data
-xls1 = r'./1.xls'
-gearbox00 = read_gearbox(xls1,'gearbox00') 
-print('Take a look at sample from gearbox00:') 
-print(gearbox00) 
-gearbox10 = read_gearbox(xls1,'gearbox10') 
-gearbox20 = read_gearbox(xls1,'gearbox20') 
-gearbox30 = read_gearbox(xls1,'gearbox30') 
-gearbox40 = read_gearbox(xls1,'gearbox40') 
-input_np = np.concatenate((gearbox00, gearbox10, gearbox20, gearbox30, gearbox40))
-labels = (0, 1, 2, 3, 4)
-output_np = np.concatenate((tag_output(gearbox00, 0),tag_output(gearbox10, 1),tag_output(gearbox20, 2),tag_output(gearbox30, 3),tag_output(gearbox40, 4)))
+xls2 = r'./2.xls'
 
-data_file = open("data.txt", "w")
-np.savetxt(data_file, input_np)
-label_file = open("label.txt", "w")
-np.savetxt(label_file, output_np)
-data_file.close()
-label_file.close()
+# 1 to 12
+ids = list(range(1, 13))
+
+#sheets = list(read_gearbox(xls2, "test{}".format(i)) for i in ids)
+sheets = list(read_gearbox1000_512(xls2, "test{}".format(i)) for i in ids)
+
+for i in ids:
+    data_file = open("test{}.txt".format(i), "w")
+    np.savetxt(data_file, sheets[i-1])
+    data_file.close()
+
