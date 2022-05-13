@@ -46,9 +46,19 @@ input_np = np.concatenate((gearbox00, gearbox10, gearbox20, gearbox30, gearbox40
 labels = (0, 1, 2, 3, 4)
 output_np = np.concatenate((tag_output(gearbox00, 0),tag_output(gearbox10, 1),tag_output(gearbox20, 2),tag_output(gearbox30, 3),tag_output(gearbox40, 4)))
 
-data_file = open("data.txt", "w")
-np.savetxt(data_file, input_np)
-label_file = open("label.txt", "w")
-np.savetxt(label_file, output_np)
-data_file.close()
-label_file.close()
+def write_np(file, data):
+    f = open(file, "w")
+    np.savetxt(file, data)
+    f.close()
+
+write_np("data.txt", input_np)
+write_np("label.txt", output_np)
+
+
+# For testing
+
+write_np("gearbox00.txt", gearbox00)
+write_np("gearbox10.txt", gearbox10)
+write_np("gearbox20.txt", gearbox20)
+write_np("gearbox30.txt", gearbox30)
+write_np("gearbox40.txt", gearbox40)
