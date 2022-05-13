@@ -18,7 +18,7 @@ import scipy.signal as sig
 import pandas as pd 
 
 singlesize = 4
-groupsize = 16
+groupsize = 512
 datasize = singlesize * groupsize
 
 # https://docs.microsoft.com/en-us/windows/ai/windows-ml/tutorials/pytorch-analysis-data
@@ -76,7 +76,7 @@ def load_label():
     '''
     load labels corrsponding to data
     '''
-    return np.expand_dims(output_np, axis=1)
+    return output_np
 
 def split_set(data, label, p=0.8):
     '''
