@@ -35,7 +35,7 @@ def read_gearbox(file, name):
     return sensor_to_groups(read_gearbox_sensor(file, name))
 
 def tag_output(input, tag):
-    return numpy.full(tag, input.shape[0])
+    return numpy.full(input.shape[0], tag)
 
 # Loading the Data
 gearbox00 = read_gearbox(r'./1.xls','gearbox00') 
@@ -45,11 +45,29 @@ gearbox10 = read_gearbox(r'./1.xls','gearbox10')
 gearbox20 = read_gearbox(r'./1.xls','gearbox20') 
 gearbox30 = read_gearbox(r'./1.xls','gearbox30') 
 gearbox40 = read_gearbox(r'./1.xls','gearbox40') 
-input = numpy.concatenate((gearbox00, gearbox10, gearbox20, gearbox30, gearbox40))
-output = numpy.concatenate((tag_output(gearbox00, 0),tag_output(gearbox10, 1),tag_output(gearbox20, 2),tag_output(gearbox30, 3),tag_output(gearbox40, 4)))
+input_np = numpy.concatenate((gearbox00, gearbox10, gearbox20, gearbox30, gearbox40))
+labels = (0, 1, 2, 3, 4)
+output_np = numpy.concatenate((tag_output(gearbox00, 0),tag_output(gearbox10, 1),tag_output(gearbox20, 2),tag_output(gearbox30, 3),tag_output(gearbox40, 4)))
 
+input = torch.Tensor(input_np)
+output = torch.Tensor(output_np)
+print('\nInput format: ', input.shape, input.dtype)
+print('Output format: ', output.shape, output.dtype)
+data = TensorDataset(input, output)
 
-
+# Split to Train, Validate and Test sets using random_split 
+train_batch_size = 10        
+number_rows = len(input)    # The size of our dataset or the number of rows in excel table.  
+test_split = int(number_rows*0.3)  
+validate_split = int(number_rows*0.2) 
+train_split = number_rows - test_split - validate_split     
+train_set, validate_set, test_set = random_split( 
+    data, [train_split, validate_split, test_split])    
+ 
+# Create Dataloader to read the data within batch sizes and put into memory. 
+train_loader = DataLoader(train_set, batch_size = train_batch_size, shuffle = True) 
+validate_loader = DataLoader(validate_set, batch_size = 1) 
+test_loader = DataLoader(test_set, batch_size = 1)
 
 # ----------------------------inputsize >=28-------------------------------------------------------------------------
 class WDCNN(nn.Module):
@@ -115,3 +133,13 @@ class WDCNN(nn.Module):
         x = x.view(x.size(0), -1)
         x = self.fc(x)
         return x
+
+# Define model parameters 
+input_size = list(input.shape)[1]   # = 4. The input depends on how many features we initially feed the model. In our case, there are 4 features for every predict value  
+learning_rate = 0.01 
+output_size = len(labels)           # The output is prediction results for three types of Irises.  
+
+print("input_size =",input_size,"output_size =",output_size)
+
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu") 
+print("The model will be running on", device, "device\n") 
