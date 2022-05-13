@@ -15,8 +15,46 @@ import numpy as np
 import torch
 import torch.utils.data as data_utils
 import scipy.signal as sig
+import pandas as pd 
 
-def load_data(*data_file):
+singlesize = 4
+groupsize = 16
+datasize = singlesize * groupsize
+
+# https://docs.microsoft.com/en-us/windows/ai/windows-ml/tutorials/pytorch-analysis-data
+def read_gearbox_sensor(file, name):
+    sheet = pd.read_excel(file, name)
+    return sheet.iloc[:, 1:]
+
+# https://stackoverflow.com/questions/48704526/split-pandas-dataframe-into-chunks-of-n
+# check lost tail data
+def chunkby(seq, size):
+    return (seq[pos:pos + size] for pos in range(0, len(seq)-size, size))
+
+# https://stackoverflow.com/questions/25440008/python-pandas-flatten-a-dataframe-to-a-list
+def sensor_to_groups(input):
+    return np.stack(c.to_numpy().flatten() for c in chunkby(input, groupsize))
+
+def read_gearbox(file, name):
+    return sensor_to_groups(read_gearbox_sensor(file, name))
+
+def tag_output(input, tag):
+    return np.full(input.shape[0], tag)
+
+# Loading the Data
+xls1 = r'./1.xls'
+gearbox00 = read_gearbox(xls1,'gearbox00') 
+print('Take a look at sample from gearbox00:') 
+print(gearbox00) 
+gearbox10 = read_gearbox(xls1,'gearbox10') 
+gearbox20 = read_gearbox(xls1,'gearbox20') 
+gearbox30 = read_gearbox(xls1,'gearbox30') 
+gearbox40 = read_gearbox(xls1,'gearbox40') 
+input_np = np.concatenate((gearbox00, gearbox10, gearbox20, gearbox30, gearbox40))
+labels = (0, 1, 2, 3, 4)
+output_np = np.concatenate((tag_output(gearbox00, 0),tag_output(gearbox10, 1),tag_output(gearbox20, 2),tag_output(gearbox30, 3),tag_output(gearbox40, 4)))
+
+def load_data():
     '''
     data_file is a tuple with 1 or 2 elements;
     first is vibration matrix,
@@ -31,22 +69,14 @@ def load_data(*data_file):
     see paper "Convolutional Neural Networks for Fault Diagnosis
     Using Rotating Speed Normalized Vibration".
     '''
-    since = time.time()
-    data_arr = np.loadtxt(data_file[0])
-    if len(data_file)>1:
-        print('rsn used (see the paper).')
-        rpm_arr = np.loadtxt(data_file[1])
-        mean_rpm = np.mean(rpm_arr)
-        data_arr = np.power(mean_rpm,2)*data_arr / (rpm_arr*rpm_arr)
-    time_elapsed = time.time() - since
-    print('Data in file {} loaded in {:.0f}m {:.0f}s'.format(data_file, time_elapsed//60, time_elapsed%60))
+    data_arr = input_np
     return np.expand_dims(data_arr, axis=1)
 
-def load_label(label_file):
+def load_label():
     '''
     load labels corrsponding to data
     '''
-    return np.loadtxt(label_file, ndmin=1)
+    return np.expand_dims(output_np, axis=1)
 
 def split_set(data, label, p=0.8):
     '''

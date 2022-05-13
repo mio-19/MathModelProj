@@ -25,7 +25,7 @@ def main():
     # data_arr_01 = data_loader.load_data(r'toydata/data.txt')
     # label_vec = data_loader.load_label(r'toydata/label.txt')
 
-    data_arr_01 = data_loader.load_data(r'data/uestc_pgb/SF01/vib_data_1.txt')
+    data_arr_01 = data_loader.load_data()
     # data_arr_03 = data_loader.load_data('data/pgb/SF03/vib_data_1.txt')
     # data_arr_01 = data_loader.resample_arr(data_arr_01, num=240) # add for Ince's model
     # data_arr_03 = data_loader.resample_arr(data_arr_03, num=240) # add for Ince's model
@@ -33,7 +33,8 @@ def main():
     # data_arr_03, _ = data_loader.fft_arr(data_arr_03) # add for fft wdcnn
     # data_arr_01 = data_loader.stft_arr(data_arr_01) # add for stft-LeNet
     # data_arr_03 = data_loader.stft_arr(data_arr_03)
-    label_vec = data_loader.load_label(r'data/uestc_pgb/SF01/label_vec.txt')
+    label_vec = data_loader.load_label()
+    print("Data",data_arr_01.shape,"Label",label_vec.shape)
 
     trainset_01, testset_01 = data_loader.split_set(data_arr_01, label_vec)
     # trainset_03, testset_03 = data_loader.split_set(data_arr_03, label_vec)
