@@ -31,17 +31,24 @@ def chunkby(seq, size):
 def sensor_to_groups(input):
     return numpy.stack(c.to_numpy().flatten() for c in chunkby(input, groupsize))
 
-def read_grarbox(file, name):
+def read_gearbox(file, name):
     return sensor_to_groups(read_gearbox_sensor(file, name))
 
 def tag_output(input, tag):
-    return None
+    return numpy.full(tag, input.shape[0])
 
 # Loading the Data
-gearbox00 = read_gearbox_sensor(r'./1.xls','gearbox00') 
+gearbox00 = read_gearbox(r'./1.xls','gearbox00') 
 print('Take a look at sample from gearbox00:') 
-print(gearbox00.head()) 
-print(sensor_to_groups(gearbox00))
+print(gearbox00) 
+gearbox10 = read_gearbox(r'./1.xls','gearbox10') 
+gearbox20 = read_gearbox(r'./1.xls','gearbox20') 
+gearbox30 = read_gearbox(r'./1.xls','gearbox30') 
+gearbox40 = read_gearbox(r'./1.xls','gearbox40') 
+input = numpy.concatenate((gearbox00, gearbox10, gearbox20, gearbox30, gearbox40))
+output = numpy.concatenate((tag_output(gearbox00, 0),tag_output(gearbox10, 1),tag_output(gearbox20, 2),tag_output(gearbox30, 3),tag_output(gearbox40, 4)))
+
+
 
 
 # ----------------------------inputsize >=28-------------------------------------------------------------------------
