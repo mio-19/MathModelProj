@@ -1,8 +1,47 @@
 #!/usr/bin/python
 # -*- coding:utf-8 -*-
-import torch
-from torch import nn
-import warnings
+
+# https://docs.microsoft.com/en-us/windows/ai/windows-ml/tutorials/pytorch-analysis-data
+import torch 
+import pandas as pd 
+import torch.nn as nn 
+from torch.utils.data import random_split, DataLoader, TensorDataset 
+import torch.nn.functional as F 
+import numpy as np 
+import torch.optim as optim 
+from torch.optim import Adam 
+
+import numpy
+
+singlesize = 4
+groupsize = 16
+datasize = singlesize * groupsize
+
+# https://docs.microsoft.com/en-us/windows/ai/windows-ml/tutorials/pytorch-analysis-data
+def read_gearbox_sensor(file, name):
+    sheet = pd.read_excel(file, name)
+    return sheet.iloc[:, 1:]
+
+# https://stackoverflow.com/questions/48704526/split-pandas-dataframe-into-chunks-of-n
+# check lost tail data
+def chunkby(seq, size):
+    return (seq[pos:pos + size] for pos in range(0, len(seq)-size, size))
+
+# https://stackoverflow.com/questions/25440008/python-pandas-flatten-a-dataframe-to-a-list
+def sensor_to_groups(input):
+    return numpy.stack(c.to_numpy().flatten() for c in chunkby(input, groupsize))
+
+def read_grarbox(file, name):
+    return sensor_to_groups(read_gearbox_sensor(file, name))
+
+def tag_output(input, tag):
+    return None
+
+# Loading the Data
+gearbox00 = read_gearbox_sensor(r'./1.xls','gearbox00') 
+print('Take a look at sample from gearbox00:') 
+print(gearbox00.head()) 
+print(sensor_to_groups(gearbox00))
 
 
 # ----------------------------inputsize >=28-------------------------------------------------------------------------
