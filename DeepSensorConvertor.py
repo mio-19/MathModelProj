@@ -9,6 +9,7 @@ import pandas as pd
 singlesize = 4
 groupsize = 512
 datasize = singlesize * groupsize
+skipsize = 128
 
 # https://docs.microsoft.com/en-us/windows/ai/windows-ml/tutorials/pytorch-analysis-data
 def read_gearbox_sensor(file, name):
@@ -16,13 +17,12 @@ def read_gearbox_sensor(file, name):
     return sheet.iloc[:, 1:]
 
 # https://stackoverflow.com/questions/48704526/split-pandas-dataframe-into-chunks-of-n
-# check lost tail data
-def chunkby(seq, size):
-    return (seq[pos:pos + size] for pos in range(0, len(seq)-size, size))
+def sliceby(seq, size, skip):
+    return (seq[pos:pos + size] for pos in range(0, len(seq) - size, skip))
 
 # https://stackoverflow.com/questions/25440008/python-pandas-flatten-a-dataframe-to-a-list
 def sensor_to_groups(input):
-    return np.stack(c.to_numpy().flatten() for c in chunkby(input, groupsize))
+    return np.stack(c.to_numpy().flatten() for c in sliceby(input, groupsize, skipsize))
 
 def read_gearbox(file, name):
     return sensor_to_groups(read_gearbox_sensor(file, name))
