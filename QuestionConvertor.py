@@ -32,7 +32,7 @@ def read_gearbox(file, name):
 
 
 def chunk1000to512(seq):
-    return (seq[0:511],seq[488:999])
+    return (seq[0:512],seq[488:1000])
 def sensor2groups1000_512(input):
     return np.stack(c.to_numpy().flatten() for c in chunk1000to512(input))
 def read_gearbox1000_512(file, name):
@@ -49,6 +49,7 @@ sheets = list(read_gearbox1000_512(xls2, "test{}".format(i)) for i in ids)
 
 for i in ids:
     data_file = open("test{}.txt".format(i), "w")
+    print(sheets[i-1].shape)
     np.savetxt(data_file, sheets[i-1])
     data_file.close()
 
