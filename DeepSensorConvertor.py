@@ -9,7 +9,7 @@ import pandas as pd
 singlesize = 4
 groupsize = 512
 datasize = singlesize * groupsize
-skipsize = 128
+skipsize = 2
 
 # https://docs.microsoft.com/en-us/windows/ai/windows-ml/tutorials/pytorch-analysis-data
 def read_gearbox_sensor(file, name):
